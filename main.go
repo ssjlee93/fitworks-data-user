@@ -9,5 +9,5 @@ func main() {
 	// Code
 	log.Println("Starting the application...")
 	db := configs.GetConnection()
-	defer db.Close()
+	log.Println(db.Stats().OpenConnections)
 }
