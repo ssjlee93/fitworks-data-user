@@ -15,9 +15,9 @@ func main() {
 
 	roleDao := daos.NewRoleDAOImpl(db)
 
-	roles, err := roleDao.ReadAll()
+	roles, err := roleDao.ReadOne(1)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Found %d roles\n", len(roles))
+	fmt.Printf("Found %q roles\n", roles.Role)
 }

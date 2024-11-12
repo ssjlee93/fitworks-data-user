@@ -2,28 +2,29 @@ package daos
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/ssjlee93/fitworks-data-user/dtos"
 	"log"
 )
 
 const (
-	readOneQuery = "SELECT * FROM roles WHERE id=?"
-	readAllQuery = "SELECT * FROM roles"
+	readOneQuery = "SELECT * FROM roles WHERE role_id=$1"
+	readAllQuery = "SELECT * FROM roles;"
 )
 
 type RoleDAOImpl struct {
-	Db *sql.DB
+	d *sql.DB
 }
 
 func NewRoleDAOImpl(db *sql.DB) *RoleDAOImpl {
-	return &RoleDAOImpl{Db: db}
+	return &RoleDAOImpl{d: db}
 }
 
-func (this *RoleDAOImpl) ReadAll() ([]dtos.Role, error) {
+func (roleDao *RoleDAOImpl) ReadAll() ([]dtos.Role, error) {
 	result := make([]dtos.Role, 0)
 	// query
-	rows, err := this.Db.Query(readAllQuery)
+	rows, err := roleDao.d.Query(readAllQuery)
 	if err != nil {
 		log.Fatal(err)
 		return nil, fmt.Errorf("roles : %v", err)
@@ -41,6 +42,19 @@ func (this *RoleDAOImpl) ReadAll() ([]dtos.Role, error) {
 
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("roles : %v", err)
+	}
+	return result, nil
+}
+
+func (roleDao *RoleDAOImpl) ReadOne(id uint) (dtos.Role, error) {
+	var result dtos.Role
+	// query
+	row := roleDao.d.QueryRow(readOneQuery, id)
+	if err := row.Scan(&result.RoleID, &result.Role, &result.Created, &result.Updated); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			log.Fatal(err)
+		}
+		log.Fatal(err)
 	}
 	return result, nil
 }
