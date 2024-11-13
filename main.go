@@ -11,13 +11,21 @@ func main() {
 	// Code
 	log.Println("Starting the application...")
 	db := configs.GetConnection()
-	log.Println(db.Stats().OpenConnections)
+	defer db.Close()
+
+	// placeholder for var db
+	fmt.Println(db.Stats().OpenConnections)
 
 	roleDao := daos.NewRoleDAOImpl(db)
 
-	roles, err := roleDao.ReadOne(1)
+	// placeholder for var roleDao
+	res, err := roleDao.ReadAll()
 	if err != nil {
-		log.Fatal(err)
+		errorMsg := fmt.Errorf("main error ReadAll: %v", err)
+		fmt.Println(errorMsg)
 	}
-	fmt.Printf("Found %q roles\n", roles.Role)
+	for _, role := range res {
+		role.PrintRole()
+	}
+
 }
