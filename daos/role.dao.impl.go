@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ssjlee93/fitworks-data-user/dtos"
-	"log"
 )
 
 const (
@@ -29,7 +28,6 @@ func (roleDao *RoleDAOImpl) ReadAll() ([]dtos.Role, error) {
 	// query
 	rows, err := roleDao.d.Query(readAllRoles)
 	if err != nil {
-		log.Fatal(err)
 		return nil, fmt.Errorf("roles : %v", err)
 	}
 	defer rows.Close()
@@ -37,7 +35,7 @@ func (roleDao *RoleDAOImpl) ReadAll() ([]dtos.Role, error) {
 	for rows.Next() {
 		var role dtos.Role
 		if err := rows.Scan(&role.RoleID, &role.Role, &role.Created, &role.Updated); err != nil {
-			log.Fatalf("roles : %v", err)
+			return nil, fmt.Errorf("roles : %v", err)
 		}
 		result = append(result, role)
 	}

@@ -17,6 +17,7 @@ func main() {
 	fmt.Println(db.Stats().OpenConnections)
 
 	roleDao := daos.NewRoleDAOImpl(db)
+	userDao := daos.NewUserDAOImpl(db)
 
 	// placeholder for var roleDao
 	res, err := roleDao.ReadAll()
@@ -26,6 +27,15 @@ func main() {
 	}
 	for _, role := range res {
 		role.PrintRole()
+	}
+
+	users, err := userDao.ReadAll()
+	if err != nil {
+		errorMsg := fmt.Errorf("main error ReadAll: %v", err)
+		fmt.Println(errorMsg)
+	}
+	for _, user := range users {
+		user.PrintUser()
 	}
 
 }

@@ -15,8 +15,9 @@ type Role struct {
 // PrintRole prints every attribute in Role
 // TODO delete this in production
 func (role *Role) PrintRole() {
-	fmt.Println(role.RoleID)
-	fmt.Println(role.Role)
-	fmt.Println(role.Created)
-	fmt.Println(role.Updated)
+	fmt.Println("=== Printing role ===")
+	fmt.Println("role_id: ", role.RoleID)
+	fmt.Println("role: ", role.Role)
+	fmt.Println("created: ", role.Created)
+	fmt.Println("updated: ", role.Updated)
 }
