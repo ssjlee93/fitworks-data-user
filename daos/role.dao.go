@@ -2,7 +2,7 @@ package daos
 
 import "github.com/ssjlee93/fitworks-data-user/dtos"
 
-type Dao[T dtos.Role] interface {
+type Dao[T dtos.Role | dtos.User] interface {
 	// Create queries DB to create a row
 	// return the created obj
 	Create() (*T, error)

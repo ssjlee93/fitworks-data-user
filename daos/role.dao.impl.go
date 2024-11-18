@@ -9,11 +9,11 @@ import (
 )
 
 const (
-	readOneQuery = "SELECT * FROM roles WHERE role_id=$1"
-	readAllQuery = "SELECT * FROM roles"
-	createQuery  = "INSERT INTO roles (role) VALUES ($1) RETURNING *"
-	updateQuery  = "UPDATE roles SET role=$1, updated=$2 WHERE role_id=$3 RETURNING *"
-	deleteQuery  = "DELETE FROM roles WHERE role_id=$1 RETURNING *"
+	readOneRole  = "SELECT * FROM roles WHERE role_id=$1"
+	readAllRoles = "SELECT * FROM roles"
+	createRole   = "INSERT INTO roles (role) VALUES ($1) RETURNING *"
+	updateRole   = "UPDATE roles SET role=$1, updated=current_timestamp WHERE role_id=$2 RETURNING *"
+	deleteRole   = "DELETE FROM roles WHERE role_id=$1 RETURNING *"
 )
 
 type RoleDAOImpl struct {
@@ -27,7 +27,7 @@ func NewRoleDAOImpl(db *sql.DB) *RoleDAOImpl {
 func (roleDao *RoleDAOImpl) ReadAll() ([]dtos.Role, error) {
 	result := make([]dtos.Role, 0)
 	// query
-	rows, err := roleDao.d.Query(readAllQuery)
+	rows, err := roleDao.d.Query(readAllRoles)
 	if err != nil {
 		log.Fatal(err)
 		return nil, fmt.Errorf("roles : %v", err)
@@ -51,7 +51,7 @@ func (roleDao *RoleDAOImpl) ReadAll() ([]dtos.Role, error) {
 func (roleDao *RoleDAOImpl) ReadOne(id int64) (*dtos.Role, error) {
 	var result dtos.Role
 	// query
-	row := roleDao.d.QueryRow(readOneQuery, id)
+	row := roleDao.d.QueryRow(readOneRole, id)
 	if err := row.Scan(&result.RoleID, &result.Role, &result.Created, &result.Updated); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("ReadOne: 0 rows found %v", err)
@@ -63,7 +63,7 @@ func (roleDao *RoleDAOImpl) ReadOne(id int64) (*dtos.Role, error) {
 
 func (roleDao *RoleDAOImpl) Create(role dtos.Role) (*dtos.Role, error) {
 	var result dtos.Role
-	row := roleDao.d.QueryRow(createQuery, role.Role)
+	row := roleDao.d.QueryRow(createRole, role.Role)
 	if err := row.Scan(&result.RoleID, &result.Role, &result.Created, &result.Updated); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("create: no row created %v", err)
@@ -75,7 +75,7 @@ func (roleDao *RoleDAOImpl) Create(role dtos.Role) (*dtos.Role, error) {
 
 func (roleDao *RoleDAOImpl) Update(role dtos.Role) (*dtos.Role, error) {
 	var result dtos.Role
-	row := roleDao.d.QueryRow(updateQuery, role.Role, role.Updated, role.RoleID)
+	row := roleDao.d.QueryRow(updateRole, role.Role, role.RoleID)
 	if err := row.Scan(&result.RoleID, &result.Role, &result.Created, &result.Updated); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("update: no row updated %v", err)
@@ -87,7 +87,7 @@ func (roleDao *RoleDAOImpl) Update(role dtos.Role) (*dtos.Role, error) {
 
 func (roleDao *RoleDAOImpl) Delete(id int64) (*dtos.Role, error) {
 	var result dtos.Role
-	row := roleDao.d.QueryRow(deleteQuery, id)
+	row := roleDao.d.QueryRow(deleteRole, id)
 	if err := row.Scan(&result.RoleID, &result.Role, &result.Created, &result.Updated); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("delete: no row deleted %v", err)
