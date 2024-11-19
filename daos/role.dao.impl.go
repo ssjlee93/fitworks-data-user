@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"github.com/ssjlee93/fitworks-data-user/dtos"
 )
 
@@ -34,7 +35,12 @@ func (roleDao *RoleDAOImpl) ReadAll() ([]dtos.Role, error) {
 	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
 		var role dtos.Role
-		if err := rows.Scan(&role.RoleID, &role.Role, &role.Created, &role.Updated); err != nil {
+		if err := rows.Scan(
+			&role.RoleID,
+			&role.Role,
+			&role.Created,
+			&role.Updated,
+		); err != nil {
 			return nil, fmt.Errorf("roles : %v", err)
 		}
 		result = append(result, role)
@@ -47,50 +53,62 @@ func (roleDao *RoleDAOImpl) ReadAll() ([]dtos.Role, error) {
 }
 
 func (roleDao *RoleDAOImpl) ReadOne(id int64) (*dtos.Role, error) {
-	var result dtos.Role
 	// query
 	row := roleDao.d.QueryRow(readOneRole, id)
-	if err := row.Scan(&result.RoleID, &result.Role, &result.Created, &result.Updated); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("ReadOne: 0 rows found %v", err)
-		}
-		return nil, fmt.Errorf("ReadOne: %v", err)
+	// scan result
+	result, err := scanRole(row)
+	if err != nil {
+		return nil, fmt.Errorf("Delete: %v", err)
 	}
-	return &result, nil
+	return result, nil
 }
 
 func (roleDao *RoleDAOImpl) Create(role dtos.Role) (*dtos.Role, error) {
-	var result dtos.Role
+	// query
 	row := roleDao.d.QueryRow(createRole, role.Role)
-	if err := row.Scan(&result.RoleID, &result.Role, &result.Created, &result.Updated); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("create: no row created %v", err)
-		}
-		return nil, fmt.Errorf("create: %v", err)
+	// scan result
+	result, err := scanRole(row)
+	if err != nil {
+		return nil, fmt.Errorf("Delete: %v", err)
 	}
-	return &result, nil
+	return result, nil
 }
 
 func (roleDao *RoleDAOImpl) Update(role dtos.Role) (*dtos.Role, error) {
-	var result dtos.Role
+	// query
 	row := roleDao.d.QueryRow(updateRole, role.Role, role.RoleID)
-	if err := row.Scan(&result.RoleID, &result.Role, &result.Created, &result.Updated); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("update: no row updated %v", err)
-		}
-		return nil, fmt.Errorf("update: %v", err)
+	// scan result
+	result, err := scanRole(row)
+	if err != nil {
+		return nil, fmt.Errorf("Update: %v", err)
 	}
-	return &result, nil
+	return result, nil
 }
 
 func (roleDao *RoleDAOImpl) Delete(id int64) (*dtos.Role, error) {
-	var result dtos.Role
+	// query
 	row := roleDao.d.QueryRow(deleteRole, id)
-	if err := row.Scan(&result.RoleID, &result.Role, &result.Created, &result.Updated); err != nil {
+	// scan result
+	result, err := scanRole(row)
+	if err != nil {
+		return nil, fmt.Errorf("Delete: %v", err)
+	}
+	return result, nil
+}
+
+func scanRole(row *sql.Row) (*dtos.Role, error) {
+	// read each row and load it into the entity
+	var result dtos.Role
+	if err := row.Scan(
+		&result.RoleID,
+		&result.Role,
+		&result.Created,
+		&result.Updated,
+	); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("delete: no row deleted %v", err)
+			return nil, fmt.Errorf("reading row: no row found %v", err)
 		}
-		return nil, fmt.Errorf("delete: %v", err)
+		return nil, fmt.Errorf("reading: %v", err)
 	}
 	return &result, nil
 }

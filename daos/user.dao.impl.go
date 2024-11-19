@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"github.com/ssjlee93/fitworks-data-user/dtos"
 )
 
@@ -33,7 +34,6 @@ func (userDao *UserDAOImpl) ReadAll() ([]dtos.User, error) {
 	defer rows.Close()
 	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
-		fmt.Println(rows.Columns())
 		var user dtos.User
 		if err := rows.Scan(
 			&user.UserID,
@@ -48,7 +48,8 @@ func (userDao *UserDAOImpl) ReadAll() ([]dtos.User, error) {
 			&user.Role.RoleID,
 			&user.Role.Role,
 			&user.Role.Created,
-			&user.Role.Updated); err != nil {
+			&user.Role.Updated,
+		); err != nil {
 			return nil, fmt.Errorf("users : %v", err)
 		}
 		result = append(result, user)
@@ -61,23 +62,81 @@ func (userDao *UserDAOImpl) ReadAll() ([]dtos.User, error) {
 }
 
 func (userDao *UserDAOImpl) ReadOne(id int64) (*dtos.User, error) {
-	var result dtos.User
 	// query
 	row := userDao.d.QueryRow(readOneUser, id)
-	if err := row.Scan(&result.UserID,
-		&result.FirstName,
-		&result.LastName,
-		&result.Google,
-		&result.Apple,
-		&result.Role.RoleID,
-		&result.Role.Role,
-		&result.Trainer,
-		&result.Created,
-		&result.Updated); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("ReadOne: 0 rows found %v", err)
-		}
+	result, err := scanUser(row)
+	if err != nil {
 		return nil, fmt.Errorf("ReadOne: %v", err)
 	}
-	return &result, nil
+	return result, nil
+}
+
+func (userDao *UserDAOImpl) Create(user dtos.User) (*dtos.User, error) {
+
+	row := userDao.d.QueryRow(createUser,
+		user.FirstName,
+		user.LastName,
+		user.Google,
+		user.Apple,
+		user.RoleID,
+		user.TrainerID)
+
+	result, err := scanUser(row)
+	if err != nil {
+		return nil, fmt.Errorf("Create: %v", err)
+	}
+	return result, nil
+}
+
+func (userDao *UserDAOImpl) Update(user dtos.User) (*dtos.User, error) {
+
+	row := userDao.d.QueryRow(updateUser,
+		user.FirstName,
+		user.LastName,
+		user.Google,
+		user.Apple,
+		user.RoleID,
+		user.TrainerID)
+
+	result, err := scanUser(row)
+	if err != nil {
+		return nil, fmt.Errorf("Update: %v", err)
+	}
+	return result, nil
+}
+
+func (userDao *UserDAOImpl) Delete(id int64) (*dtos.User, error) {
+
+	row := userDao.d.QueryRow(deleteUser, id)
+
+	result, err := scanUser(row)
+	if err != nil {
+		return nil, fmt.Errorf("Delete: %v", err)
+	}
+	return result, nil
+}
+
+func scanUser(row *sql.Row) (*dtos.User, error) {
+	var user dtos.User
+	if err := row.Scan(
+		&user.UserID,
+		&user.FirstName,
+		&user.LastName,
+		&user.Google,
+		&user.Apple,
+		&user.RoleID,
+		&user.TrainerID,
+		&user.Created,
+		&user.Updated,
+		&user.Role.RoleID,
+		&user.Role.Role,
+		&user.Role.Created,
+		&user.Role.Updated,
+	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("reading row failed: 0 rows found %v", err)
+		}
+		return nil, fmt.Errorf("reading row failed: %v", err)
+	}
+	return &user, nil
 }
