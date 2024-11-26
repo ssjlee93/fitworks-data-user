@@ -1,8 +1,8 @@
-package daos
+package repositories
 
 import "github.com/ssjlee93/fitworks-data-user/dtos"
 
-type Dao[T dtos.Role | dtos.User] interface {
+type Repository[T dtos.Role | dtos.User] interface {
 	// Create queries DB to create a row
 	// return the created obj
 	Create(t T) (*T, error)
