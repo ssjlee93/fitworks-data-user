@@ -106,9 +106,9 @@ func scanRole(row *sql.Row) (*dtos.Role, error) {
 		&result.Updated,
 	); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("reading row: no row found %v", err)
+			return nil, fmt.Errorf("scanning row: no row found %v", err)
 		}
-		return nil, fmt.Errorf("reading: %v", err)
+		return nil, fmt.Errorf("scanning: %v", err)
 	}
 	return &result, nil
 }

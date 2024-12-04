@@ -7,13 +7,13 @@ import (
 
 type User struct {
 	UserID    int64   `json:"id"`
-	FirstName string  `json:"first_name"`
-	LastName  string  `json:"last_name"`
+	FirstName string  `json:"firstName"`
+	LastName  string  `json:"lastName"`
 	Google    *string `json:"google"`
 	Apple     *string `json:"apple"`
-	RoleID    int64   `json:"role_id"`
+	RoleID    int64   `json:"roleId"`
 	Role      Role    `json:"role"`
-	TrainerID *int64  `json:"trainer_id"`
+	TrainerID *int64  `json:"trainerId"`
 	Trainer   *User   `json:"trainer"`
 	Created   time.Time
 	Updated   time.Time

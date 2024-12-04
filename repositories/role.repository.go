@@ -14,41 +14,26 @@ func NewRoleRepository(dao daos.RoleDAOImpl) *RoleRepository {
 }
 
 func (roleRepo *RoleRepository) ReadAll() ([]dtos.Role, error) {
-	res, err := roleRepo.dao.ReadAll()
-	if err != nil {
-		return nil, err
-	}
+	res, _ := roleRepo.dao.ReadAll()
 	return res, nil
 }
 
 func (roleRepo *RoleRepository) ReadOne(id int64) (*dtos.Role, error) {
-	res, err := roleRepo.dao.ReadOne(id)
-	if err != nil {
-		return nil, err
-	}
+	res, _ := roleRepo.dao.ReadOne(id)
 	return res, nil
 }
 
 func (roleRepo *RoleRepository) Create(role dtos.Role) (*dtos.Role, error) {
-	res, err := roleRepo.dao.Create(role)
-	if err != nil {
-		return nil, err
-	}
+	res, _ := roleRepo.dao.Create(role)
 	return res, nil
 }
 
 func (roleRepo *RoleRepository) Update(role dtos.Role) (*dtos.Role, error) {
-	res, err := roleRepo.dao.Update(role)
-	if err != nil {
-		return nil, err
-	}
+	res, _ := roleRepo.dao.Update(role)
 	return res, nil
 }
 
 func (roleRepo *RoleRepository) Delete(id int64) (*dtos.Role, error) {
-	res, err := roleRepo.dao.Delete(id)
-	if err != nil {
-		return nil, err
-	}
+	res, _ := roleRepo.dao.Delete(id)
 	return res, nil
 }

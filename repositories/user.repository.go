@@ -14,41 +14,26 @@ func NewUserRepository(dao daos.UserDAOImpl) *UserRepository {
 }
 
 func (userRepo *UserRepository) ReadAll() ([]dtos.User, error) {
-	res, err := userRepo.dao.ReadAll()
-	if err != nil {
-		return nil, err
-	}
+	res, _ := userRepo.dao.ReadAll()
 	return res, nil
 }
 
 func (userRepo *UserRepository) ReadOne(id int64) (*dtos.User, error) {
-	res, err := userRepo.dao.ReadOne(id)
-	if err != nil {
-		return nil, err
-	}
+	res, _ := userRepo.dao.ReadOne(id)
 	return res, nil
 }
 
 func (userRepo *UserRepository) Create(user dtos.User) (*dtos.User, error) {
-	res, err := userRepo.dao.Create(user)
-	if err != nil {
-		return nil, err
-	}
+	res, _ := userRepo.dao.Create(user)
 	return res, nil
 }
 
 func (userRepo *UserRepository) Update(user dtos.User) (*dtos.User, error) {
-	res, err := userRepo.dao.Update(user)
-	if err != nil {
-		return nil, err
-	}
+	res, _ := userRepo.dao.Update(user)
 	return res, nil
 }
 
 func (userRepo *UserRepository) Delete(id int64) (*dtos.User, error) {
-	res, err := userRepo.dao.Delete(id)
-	if err != nil {
-		return nil, err
-	}
+	res, _ := userRepo.dao.Delete(id)
 	return res, nil
 }

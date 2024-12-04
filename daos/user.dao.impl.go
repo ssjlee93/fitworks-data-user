@@ -134,9 +134,9 @@ func scanUser(row *sql.Row) (*dtos.User, error) {
 		&user.Role.Updated,
 	); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("reading row failed: 0 rows found %v", err)
+			return nil, fmt.Errorf("scanning row failed: 0 rows found %v", err)
 		}
-		return nil, fmt.Errorf("reading row failed: %v", err)
+		return nil, fmt.Errorf("scanning row failed: %v", err)
 	}
 	return &user, nil
 }
