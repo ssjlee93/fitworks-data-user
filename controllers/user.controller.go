@@ -22,7 +22,12 @@ func (userController *UserController) ReadAllHandler(w http.ResponseWriter, r *h
 	marshalResponse(res, w)
 }
 
-func marshalResponse(res []dtos.User, w http.ResponseWriter) error {
+func (userController *UserController) ReadOneHandler(w http.ResponseWriter, r *http.Request, id int64) {
+	res, _ := userController.r.ReadOne(id)
+	marshalResponse(res, w)
+}
+
+func marshalResponse[T []dtos.User | *dtos.User](res T, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 
 	response, err := json.Marshal(res)
@@ -63,13 +68,6 @@ func marshalResponse(res []dtos.User, w http.ResponseWriter) error {
 // 61  	http.Redirect(w, r, "/view/"+title, http.StatusFound)
 // 62  }
 
-// 66  func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-// 67  	err := templates.ExecuteTemplate(w, tmpl+".html", p)
-// 68  	if err != nil {
-// 69  		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 70  	}
-// 71  }
-// 72
 // 73  var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
 // 74
 // 75  func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
