@@ -23,6 +23,7 @@ func main() {
 	userController := controllers.NewUserController(*userRepo)
 
 	http.HandleFunc("/users", userController.ReadAllHandler)
+	http.HandleFunc("/user/", userController.Handler)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

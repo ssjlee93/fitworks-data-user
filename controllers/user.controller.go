@@ -1,13 +1,15 @@
 package controllers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
+	"regexp"
+	"strconv"
 
-	"github.com/ssjlee93/fitworks-data-user/dtos"
 	"github.com/ssjlee93/fitworks-data-user/repositories"
 )
+
+var validPath = regexp.MustCompile("^(/(user|users)(/[0-9]+)?$)")
 
 type UserController struct {
 	r repositories.UserRepository
@@ -27,17 +29,46 @@ func (userController *UserController) ReadOneHandler(w http.ResponseWriter, r *h
 	marshalResponse(res, w)
 }
 
-func marshalResponse[T []dtos.User | *dtos.User](res T, w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-
-	response, err := json.Marshal(res)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return fmt.Errorf("could not marshal res: %w", err)
+func makeHandler(fn func(http.ResponseWriter, *http.Request, int64)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		m := validPath.FindStringSubmatch(r.URL.Path)
+		if m == nil {
+			http.NotFound(w, r)
+			return
+		}
+		id, err := strconv.Atoi(m[2])
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		fn(w, r, int64(id))
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Write(response)
-	return nil
+}
+
+func (userController *UserController) Handler(w http.ResponseWriter, r *http.Request) {
+	m := validPath.FindStringSubmatch(r.URL.Path)
+	fmt.Println(m)
+
+	if m == nil {
+		http.NotFound(w, r)
+		return
+	}
+	id, err := strconv.Atoi(m[3][1:])
+	if err != nil {
+		e := fmt.Errorf("could not parse user id %s", m[3][1:])
+		fmt.Println(e)
+		http.NotFound(w, r)
+		return
+	}
+	switch r.Method {
+	case http.MethodGet:
+		userController.ReadOneHandler(w, r, int64(id))
+	case http.MethodPost:
+	case http.MethodPut:
+	case http.MethodDelete:
+	default:
+		http.Error(w, "Unsupported Method", http.StatusMethodNotAllowed)
+	}
 }
 
 // 36  func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
@@ -67,17 +98,3 @@ func marshalResponse[T []dtos.User | *dtos.User](res T, w http.ResponseWriter) e
 // 60  	}
 // 61  	http.Redirect(w, r, "/view/"+title, http.StatusFound)
 // 62  }
-
-// 73  var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
-// 74
-// 75  func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
-// 76  	return func(w http.ResponseWriter, r *http.Request) {
-// 77  		m := validPath.FindStringSubmatch(r.URL.Path)
-
-// 78  		if m == nil {
-// 79  			http.NotFound(w, r)
-// 80  			return
-// 81  		}
-// 82  		fn(w, r, m[2])
-// 83  	}
-// 84  }
