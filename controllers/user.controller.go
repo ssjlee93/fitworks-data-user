@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -9,7 +10,7 @@ import (
 	"github.com/ssjlee93/fitworks-data-user/repositories"
 )
 
-var validPath = regexp.MustCompile("^(/(user|users)(/[0-9]+)?$)")
+var validPath = regexp.MustCompile("^/(user|users)/([0-9]+)?$")
 
 type UserController struct {
 	r repositories.UserRepository
@@ -24,9 +25,24 @@ func (userController *UserController) ReadAllHandler(w http.ResponseWriter, r *h
 	marshalResponse(res, w)
 }
 
-func (userController *UserController) ReadOneHandler(w http.ResponseWriter, r *http.Request, id int64) {
+func (userController *UserController) readOneHandler(w http.ResponseWriter, r *http.Request, id int64) {
 	res, _ := userController.r.ReadOne(id)
 	marshalResponse(res, w)
+}
+
+func (userController *UserController) createHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("UserController.createHandler called")
+	user, err := unmarshalRequest(w, r)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = userController.r.Create(*user)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+	}
+	w.WriteHeader(http.StatusCreated)
 }
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, int64)) http.HandlerFunc {
@@ -46,29 +62,40 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, int64)) http.Handle
 }
 
 func (userController *UserController) Handler(w http.ResponseWriter, r *http.Request) {
+	log.Println("UserController.Handler called")
 	m := validPath.FindStringSubmatch(r.URL.Path)
-	fmt.Println(m)
 
 	if m == nil {
+		log.Println("UserController.Handler error on valid path")
 		http.NotFound(w, r)
 		return
 	}
-	id, err := strconv.Atoi(m[3][1:])
-	if err != nil {
-		e := fmt.Errorf("could not parse user id %s", m[3][1:])
-		fmt.Println(e)
-		http.NotFound(w, r)
-		return
-	}
+
 	switch r.Method {
 	case http.MethodGet:
-		userController.ReadOneHandler(w, r, int64(id))
+		id, err := extractId(m[2])
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		userController.readOneHandler(w, r, id)
 	case http.MethodPost:
+		userController.createHandler(w, r)
 	case http.MethodPut:
 	case http.MethodDelete:
 	default:
 		http.Error(w, "Unsupported Method", http.StatusMethodNotAllowed)
 	}
+}
+
+func extractId(idStr string) (int64, error) {
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		e := fmt.Errorf("could not parse user id %s", idStr)
+		fmt.Println(e)
+		return -1, err
+	}
+	return int64(id), nil
 }
 
 // 36  func viewHandler(w http.ResponseWriter, r *http.Request, title string) {

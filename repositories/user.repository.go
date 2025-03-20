@@ -23,9 +23,12 @@ func (userRepo *UserRepository) ReadOne(id int64) (*dtos.User, error) {
 	return res, nil
 }
 
-func (userRepo *UserRepository) Create(user dtos.User) (*dtos.User, error) {
-	res, _ := userRepo.dao.Create(user)
-	return res, nil
+func (userRepo *UserRepository) Create(user dtos.User) error {
+	err := userRepo.dao.Create(user)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (userRepo *UserRepository) Update(user dtos.User) (*dtos.User, error) {
