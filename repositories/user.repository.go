@@ -7,11 +7,11 @@ import (
 )
 
 type UserRepository struct {
-	dao daos.UserDAOImpl
+	dao daos.Dao[dtos.User]
 }
 
 func NewUserRepository(dao daos.UserDAOImpl) *UserRepository {
-	return &UserRepository{dao: dao}
+	return &UserRepository{dao: &dao}
 }
 
 func (userRepo *UserRepository) ReadAll() ([]dtos.User, error) {
@@ -42,7 +42,11 @@ func (userRepo *UserRepository) Update(user dtos.User) error {
 	return nil
 }
 
-func (userRepo *UserRepository) Delete(id int64) (*dtos.User, error) {
-	res, _ := userRepo.dao.Delete(id)
-	return res, nil
+func (userRepo *UserRepository) Delete(id int64) error {
+	log.Println("| - - UserRepository.Delete called")
+	err := userRepo.dao.Delete(id)
+	if err != nil {
+		return err
+	}
+	return nil
 }

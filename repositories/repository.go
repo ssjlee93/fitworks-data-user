@@ -17,5 +17,5 @@ type Repository[T dtos.Role | dtos.User] interface {
 	Update(t T) error
 	// Delete queries DB to hard delete a row
 	// returns the deleted obj
-	Delete(id int64) (*T, error)
+	Delete(id int64) error
 }

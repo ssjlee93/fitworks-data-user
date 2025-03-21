@@ -61,10 +61,65 @@ func (userController *UserController) updateHandler(w http.ResponseWriter, r *ht
 
 	err = userController.r.Update(*user)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (userController *UserController) deleteHandler(w http.ResponseWriter, r *http.Request, id int64) {
+	log.Println("| UserController.deleteHandler called")
+	err := userController.r.Delete(id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (userController *UserController) Handler(w http.ResponseWriter, r *http.Request) {
+	log.Println("UserController.Handler called")
+	// validate URL
+	m := validPath.FindStringSubmatch(r.URL.Path)
+	if m == nil {
+		log.Println("UserController.Handler error on valid path")
+		http.NotFound(w, r)
+		return
+	}
+
+	// handle POST method separately
+	if r.Method == http.MethodPost {
+		userController.createHandler(w, r)
+		return
+	}
+
+	// prepare id from path param
+	id, err := extractId(m[2])
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	switch r.Method {
+	case http.MethodGet:
+		userController.readOneHandler(w, r, id)
+	case http.MethodPut:
+		userController.updateHandler(w, r, id)
+	case http.MethodDelete:
+		userController.deleteHandler(w, r, id)
+	default:
+		http.Error(w, "Unsupported Method", http.StatusMethodNotAllowed)
+	}
+}
+
+func extractId(idStr string) (int64, error) {
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		e := fmt.Errorf("could not parse user id %s", idStr)
+		fmt.Println(e)
+		return -1, err
+	}
+	return int64(id), nil
 }
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, int64)) http.HandlerFunc {
@@ -81,49 +136,6 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, int64)) http.Handle
 		}
 		fn(w, r, int64(id))
 	}
-}
-
-func (userController *UserController) Handler(w http.ResponseWriter, r *http.Request) {
-	log.Println("UserController.Handler called")
-	m := validPath.FindStringSubmatch(r.URL.Path)
-
-	if m == nil {
-		log.Println("UserController.Handler error on valid path")
-		http.NotFound(w, r)
-		return
-	}
-
-	switch r.Method {
-	case http.MethodGet:
-		id, err := extractId(m[2])
-		if err != nil {
-			http.NotFound(w, r)
-			return
-		}
-		userController.readOneHandler(w, r, id)
-	case http.MethodPost:
-		userController.createHandler(w, r)
-	case http.MethodPut:
-		id, err := extractId(m[2])
-		if err != nil {
-			http.NotFound(w, r)
-			return
-		}
-		userController.updateHandler(w, r, id)
-	case http.MethodDelete:
-	default:
-		http.Error(w, "Unsupported Method", http.StatusMethodNotAllowed)
-	}
-}
-
-func extractId(idStr string) (int64, error) {
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		e := fmt.Errorf("could not parse user id %s", idStr)
-		fmt.Println(e)
-		return -1, err
-	}
-	return int64(id), nil
 }
 
 // 36  func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
