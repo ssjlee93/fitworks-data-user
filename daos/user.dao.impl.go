@@ -11,9 +11,9 @@ import (
 
 const (
 	readOneUser  = "SELECT * FROM users u left join roles r on u.role_id = r.role_id WHERE u.user_id=$1"
-	readAllUsers = "SELECT * FROM users u left join roles r on u.role_id = r.role_id"
+	readAllUsers = "SELECT * FROM users u left join roles r on u.role_id = r.role_id ORDER BY u.created DESC"
 	createUser   = "INSERT INTO users (first_name, last_name, google, apple, role_id, trainer_id) VALUES ($1, $2, $3, $4, $5, $6)"
-	updateUser   = "UPDATE users SET first_name=$1, last_name=$2, google=$3, apple=$4, role_id=$5, trainer_id=$6, updated=current_timestamp WHERE role_id=$3 RETURNING *"
+	updateUser   = "UPDATE users SET first_name=$2, last_name=$3, google=$4, apple=$5, role_id=$6, trainer_id=$7, updated=current_timestamp WHERE user_id=$1"
 	deleteUser   = "DELETE FROM users WHERE user_id=$1 RETURNING *"
 )
 
@@ -90,9 +90,10 @@ func (userDao *UserDAOImpl) Create(user dtos.User) error {
 	return nil
 }
 
-func (userDao *UserDAOImpl) Update(user dtos.User) (*dtos.User, error) {
-
-	row := userDao.d.QueryRow(updateUser,
+func (userDao *UserDAOImpl) Update(user dtos.User) error {
+	log.Println("UserDAO Update", user.UserID)
+	exec, err := userDao.d.Exec(updateUser,
+		user.UserID,
 		user.FirstName,
 		user.LastName,
 		user.Google,
@@ -100,11 +101,12 @@ func (userDao *UserDAOImpl) Update(user dtos.User) (*dtos.User, error) {
 		user.RoleID,
 		user.TrainerID)
 
-	result, err := scanUser(row)
 	if err != nil {
-		return nil, fmt.Errorf("Update: %v", err)
+		log.Printf("Error UserDao update : %v", err)
+		return err
 	}
-	return result, nil
+	log.Println(exec.RowsAffected())
+	return nil
 }
 
 func (userDao *UserDAOImpl) Delete(id int64) (*dtos.User, error) {

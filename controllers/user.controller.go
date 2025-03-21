@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/ssjlee93/fitworks-data-user/dtos"
 	"log"
 	"net/http"
 	"regexp"
@@ -13,19 +14,21 @@ import (
 var validPath = regexp.MustCompile("^/(user|users)/([0-9]+)?$")
 
 type UserController struct {
-	r repositories.UserRepository
+	r repositories.Repository[dtos.User]
 }
 
 func NewUserController(repo repositories.UserRepository) *UserController {
-	return &UserController{r: repo}
+	return &UserController{r: &repo}
 }
 
 func (userController *UserController) ReadAllHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("UserController.ReadAllHandler called")
 	res, _ := userController.r.ReadAll()
 	marshalResponse(res, w)
 }
 
 func (userController *UserController) readOneHandler(w http.ResponseWriter, r *http.Request, id int64) {
+	log.Println("UserController.readOneHandler called")
 	res, _ := userController.r.ReadOne(id)
 	marshalResponse(res, w)
 }
@@ -35,14 +38,33 @@ func (userController *UserController) createHandler(w http.ResponseWriter, r *ht
 	user, err := unmarshalRequest(w, r)
 	if err != nil {
 		fmt.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
 	}
 
 	err = userController.r.Create(*user)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 	}
 	w.WriteHeader(http.StatusCreated)
+}
+
+func (userController *UserController) updateHandler(w http.ResponseWriter, r *http.Request, id int64) {
+	log.Println("UserController.updateHandler called")
+	user, err := unmarshalRequest(w, r)
+	user.UserID = id
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+	}
+
+	err = userController.r.Update(*user)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, int64)) http.HandlerFunc {
@@ -82,6 +104,12 @@ func (userController *UserController) Handler(w http.ResponseWriter, r *http.Req
 	case http.MethodPost:
 		userController.createHandler(w, r)
 	case http.MethodPut:
+		id, err := extractId(m[2])
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		userController.updateHandler(w, r, id)
 	case http.MethodDelete:
 	default:
 		http.Error(w, "Unsupported Method", http.StatusMethodNotAllowed)

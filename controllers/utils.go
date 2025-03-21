@@ -22,6 +22,7 @@ func marshalResponse[T []dtos.User | *dtos.User](res T, w http.ResponseWriter) e
 
 func unmarshalRequest(w http.ResponseWriter, r *http.Request) (*dtos.User, error) {
 	var user *dtos.User
+
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return nil, fmt.Errorf("could not unmarshal request: %w", err)

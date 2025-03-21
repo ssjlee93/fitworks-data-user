@@ -3,6 +3,7 @@ package repositories
 import (
 	"github.com/ssjlee93/fitworks-data-user/daos"
 	"github.com/ssjlee93/fitworks-data-user/dtos"
+	"log"
 )
 
 type UserRepository struct {
@@ -24,6 +25,7 @@ func (userRepo *UserRepository) ReadOne(id int64) (*dtos.User, error) {
 }
 
 func (userRepo *UserRepository) Create(user dtos.User) error {
+	log.Println("UserRepository.Create")
 	err := userRepo.dao.Create(user)
 	if err != nil {
 		return err
@@ -31,9 +33,13 @@ func (userRepo *UserRepository) Create(user dtos.User) error {
 	return nil
 }
 
-func (userRepo *UserRepository) Update(user dtos.User) (*dtos.User, error) {
-	res, _ := userRepo.dao.Update(user)
-	return res, nil
+func (userRepo *UserRepository) Update(user dtos.User) error {
+	log.Println("UserRepository Update")
+	err := userRepo.dao.Update(user)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (userRepo *UserRepository) Delete(id int64) (*dtos.User, error) {
