@@ -26,6 +26,7 @@ func NewUserDAOImpl(db *sql.DB) *UserDAOImpl {
 }
 
 func (userDao *UserDAOImpl) ReadAll() ([]dtos.User, error) {
+	log.Println("| - - - UserDAO.ReadAll")
 	result := make([]dtos.User, 0)
 	// query
 	rows, err := userDao.d.Query(readAllUsers)
@@ -56,6 +57,7 @@ func (userDao *UserDAOImpl) ReadAll() ([]dtos.User, error) {
 		result = append(result, user)
 	}
 
+	// handle any other errors
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("users : %v", err)
 	}
@@ -63,6 +65,7 @@ func (userDao *UserDAOImpl) ReadAll() ([]dtos.User, error) {
 }
 
 func (userDao *UserDAOImpl) ReadOne(id int64) (*dtos.User, error) {
+	log.Println("| - - - UserDAO.ReadOne")
 	// query
 	row := userDao.d.QueryRow(readOneUser, id)
 	result, err := scanUser(row)
@@ -73,6 +76,7 @@ func (userDao *UserDAOImpl) ReadOne(id int64) (*dtos.User, error) {
 }
 
 func (userDao *UserDAOImpl) Create(user dtos.User) error {
+	log.Println("| - - - UserDAO.Create")
 
 	exec, err := userDao.d.Exec(createUser,
 		user.FirstName,
@@ -91,7 +95,7 @@ func (userDao *UserDAOImpl) Create(user dtos.User) error {
 }
 
 func (userDao *UserDAOImpl) Update(user dtos.User) error {
-	log.Println("UserDAO Update", user.UserID)
+	log.Println("| - - - UserDAO.Update")
 	exec, err := userDao.d.Exec(updateUser,
 		user.UserID,
 		user.FirstName,

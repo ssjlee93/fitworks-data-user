@@ -22,19 +22,19 @@ func NewUserController(repo repositories.UserRepository) *UserController {
 }
 
 func (userController *UserController) ReadAllHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("UserController.ReadAllHandler called")
+	log.Println("| UserController.ReadAllHandler")
 	res, _ := userController.r.ReadAll()
 	marshalResponse(res, w)
 }
 
 func (userController *UserController) readOneHandler(w http.ResponseWriter, r *http.Request, id int64) {
-	log.Println("UserController.readOneHandler called")
+	log.Println("| UserController.readOneHandler")
 	res, _ := userController.r.ReadOne(id)
 	marshalResponse(res, w)
 }
 
 func (userController *UserController) createHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("UserController.createHandler called")
+	log.Println("| UserController.createHandler")
 	user, err := unmarshalRequest(w, r)
 	if err != nil {
 		fmt.Println(err)
@@ -50,7 +50,7 @@ func (userController *UserController) createHandler(w http.ResponseWriter, r *ht
 }
 
 func (userController *UserController) updateHandler(w http.ResponseWriter, r *http.Request, id int64) {
-	log.Println("UserController.updateHandler called")
+	log.Println("| UserController.updateHandler")
 	user, err := unmarshalRequest(w, r)
 	user.UserID = id
 	if err != nil {
@@ -68,7 +68,7 @@ func (userController *UserController) updateHandler(w http.ResponseWriter, r *ht
 }
 
 func (userController *UserController) deleteHandler(w http.ResponseWriter, r *http.Request, id int64) {
-	log.Println("| UserController.deleteHandler called")
+	log.Println("| UserController.deleteHandler")
 	err := userController.r.Delete(id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -78,7 +78,7 @@ func (userController *UserController) deleteHandler(w http.ResponseWriter, r *ht
 }
 
 func (userController *UserController) Handler(w http.ResponseWriter, r *http.Request) {
-	log.Println("UserController.Handler called")
+	log.Println("UserController.Handler")
 	// validate URL
 	m := validPath.FindStringSubmatch(r.URL.Path)
 	if m == nil {
