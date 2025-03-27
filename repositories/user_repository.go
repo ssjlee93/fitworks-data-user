@@ -1,4 +1,4 @@
-package daos
+package repositories
 
 import (
 	"database/sql"
@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ssjlee93/fitworks-data-user/dtos"
+	"github.com/ssjlee93/fitworks-data-user/models"
 )
 
 const (
@@ -25,9 +25,9 @@ func NewUserDAOImpl(db *sql.DB) *UserDAOImpl {
 	return &UserDAOImpl{d: db}
 }
 
-func (userDao *UserDAOImpl) ReadAll() ([]dtos.User, error) {
+func (userDao *UserDAOImpl) ReadAll() ([]models.User, error) {
 	log.Println("| - - - UserDAO.ReadAll")
-	result := make([]dtos.User, 0)
+	result := make([]models.User, 0)
 	// query
 	rows, err := userDao.d.Query(readAllUsers)
 	if err != nil {
@@ -36,7 +36,7 @@ func (userDao *UserDAOImpl) ReadAll() ([]dtos.User, error) {
 	defer rows.Close()
 	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
-		var user dtos.User
+		var user models.User
 		if err := rows.Scan(
 			&user.UserID,
 			&user.FirstName,
@@ -64,7 +64,7 @@ func (userDao *UserDAOImpl) ReadAll() ([]dtos.User, error) {
 	return result, nil
 }
 
-func (userDao *UserDAOImpl) ReadOne(id int64) (*dtos.User, error) {
+func (userDao *UserDAOImpl) ReadOne(id int64) (*models.User, error) {
 	log.Println("| - - - UserDAO.ReadOne")
 	// query
 	row := userDao.d.QueryRow(readOneUser, id)
@@ -75,7 +75,7 @@ func (userDao *UserDAOImpl) ReadOne(id int64) (*dtos.User, error) {
 	return result, nil
 }
 
-func (userDao *UserDAOImpl) Create(user dtos.User) error {
+func (userDao *UserDAOImpl) Create(user models.User) error {
 	log.Println("| - - - UserDAO.Create")
 
 	exec, err := userDao.d.Exec(createUser,
@@ -94,7 +94,7 @@ func (userDao *UserDAOImpl) Create(user dtos.User) error {
 	return nil
 }
 
-func (userDao *UserDAOImpl) Update(user dtos.User) error {
+func (userDao *UserDAOImpl) Update(user models.User) error {
 	log.Println("| - - - UserDAO.Update")
 	exec, err := userDao.d.Exec(updateUser,
 		user.UserID,
@@ -124,8 +124,8 @@ func (userDao *UserDAOImpl) Delete(id int64) error {
 	return nil
 }
 
-func scanUser(row *sql.Row) (*dtos.User, error) {
-	var user dtos.User
+func scanUser(row *sql.Row) (*models.User, error) {
+	var user models.User
 	if err := row.Scan(
 		&user.UserID,
 		&user.FirstName,

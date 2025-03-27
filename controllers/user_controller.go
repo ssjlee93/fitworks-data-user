@@ -2,22 +2,22 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/ssjlee93/fitworks-data-user/dtos"
+	"github.com/ssjlee93/fitworks-data-user/models"
 	"log"
 	"net/http"
 	"regexp"
 	"strconv"
 
-	"github.com/ssjlee93/fitworks-data-user/repositories"
+	"github.com/ssjlee93/fitworks-data-user/services"
 )
 
 var validPath = regexp.MustCompile("^/(user|users)/([0-9]+)?$")
 
 type UserController struct {
-	r repositories.Repository[dtos.User]
+	r services.Repository[models.User]
 }
 
-func NewUserController(repo repositories.UserRepository) *UserController {
+func NewUserController(repo services.UserRepository) *UserController {
 	return &UserController{r: &repo}
 }
 

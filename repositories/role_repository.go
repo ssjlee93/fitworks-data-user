@@ -1,11 +1,11 @@
-package daos
+package repositories
 
 import (
 	"database/sql"
 	"errors"
 	"fmt"
 
-	"github.com/ssjlee93/fitworks-data-user/dtos"
+	"github.com/ssjlee93/fitworks-data-user/models"
 )
 
 const (
@@ -24,8 +24,8 @@ func NewRoleDAOImpl(db *sql.DB) *RoleDAOImpl {
 	return &RoleDAOImpl{d: db}
 }
 
-func (roleDao *RoleDAOImpl) ReadAll() ([]dtos.Role, error) {
-	result := make([]dtos.Role, 0)
+func (roleDao *RoleDAOImpl) ReadAll() ([]models.Role, error) {
+	result := make([]models.Role, 0)
 	// query
 	rows, err := roleDao.d.Query(readAllRoles)
 	if err != nil {
@@ -34,7 +34,7 @@ func (roleDao *RoleDAOImpl) ReadAll() ([]dtos.Role, error) {
 	defer rows.Close()
 	// Loop through rows, using Scan to assign column data to struct fields.
 	for rows.Next() {
-		var role dtos.Role
+		var role models.Role
 		if err := rows.Scan(
 			&role.RoleID,
 			&role.Role,
@@ -52,7 +52,7 @@ func (roleDao *RoleDAOImpl) ReadAll() ([]dtos.Role, error) {
 	return result, nil
 }
 
-func (roleDao *RoleDAOImpl) ReadOne(id int64) (*dtos.Role, error) {
+func (roleDao *RoleDAOImpl) ReadOne(id int64) (*models.Role, error) {
 	// query
 	row := roleDao.d.QueryRow(readOneRole, id)
 	// scan result
@@ -63,7 +63,7 @@ func (roleDao *RoleDAOImpl) ReadOne(id int64) (*dtos.Role, error) {
 	return result, nil
 }
 
-func (roleDao *RoleDAOImpl) Create(role dtos.Role) (*dtos.Role, error) {
+func (roleDao *RoleDAOImpl) Create(role models.Role) (*models.Role, error) {
 	// query
 	row := roleDao.d.QueryRow(createRole, role.Role)
 	// scan result
@@ -74,7 +74,7 @@ func (roleDao *RoleDAOImpl) Create(role dtos.Role) (*dtos.Role, error) {
 	return result, nil
 }
 
-func (roleDao *RoleDAOImpl) Update(role dtos.Role) (*dtos.Role, error) {
+func (roleDao *RoleDAOImpl) Update(role models.Role) (*models.Role, error) {
 	// query
 	row := roleDao.d.QueryRow(updateRole, role.Role, role.RoleID)
 	// scan result
@@ -85,7 +85,7 @@ func (roleDao *RoleDAOImpl) Update(role dtos.Role) (*dtos.Role, error) {
 	return result, nil
 }
 
-func (roleDao *RoleDAOImpl) Delete(id int64) (*dtos.Role, error) {
+func (roleDao *RoleDAOImpl) Delete(id int64) (*models.Role, error) {
 	// query
 	row := roleDao.d.QueryRow(deleteRole, id)
 	// scan result
@@ -96,9 +96,9 @@ func (roleDao *RoleDAOImpl) Delete(id int64) (*dtos.Role, error) {
 	return result, nil
 }
 
-func scanRole(row *sql.Row) (*dtos.Role, error) {
+func scanRole(row *sql.Row) (*models.Role, error) {
 	// read each row and load it into the entity
-	var result dtos.Role
+	var result models.Role
 	if err := row.Scan(
 		&result.RoleID,
 		&result.Role,

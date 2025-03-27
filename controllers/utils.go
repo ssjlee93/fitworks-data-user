@@ -3,11 +3,11 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ssjlee93/fitworks-data-user/dtos"
+	"github.com/ssjlee93/fitworks-data-user/models"
 	"net/http"
 )
 
-func marshalResponse[T []dtos.User | *dtos.User](res T, w http.ResponseWriter) error {
+func marshalResponse[T []models.User | *models.User](res T, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 
 	response, err := json.Marshal(res)
@@ -20,8 +20,8 @@ func marshalResponse[T []dtos.User | *dtos.User](res T, w http.ResponseWriter) e
 	return nil
 }
 
-func unmarshalRequest(w http.ResponseWriter, r *http.Request) (*dtos.User, error) {
-	var user *dtos.User
+func unmarshalRequest(w http.ResponseWriter, r *http.Request) (*models.User, error) {
+	var user *models.User
 
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)

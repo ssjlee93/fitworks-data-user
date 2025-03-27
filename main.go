@@ -6,8 +6,8 @@ import (
 
 	"github.com/ssjlee93/fitworks-data-user/configs"
 	"github.com/ssjlee93/fitworks-data-user/controllers"
-	"github.com/ssjlee93/fitworks-data-user/daos"
 	"github.com/ssjlee93/fitworks-data-user/repositories"
+	"github.com/ssjlee93/fitworks-data-user/services"
 )
 
 func main() {
@@ -16,9 +16,9 @@ func main() {
 	db := configs.GetConnection()
 	defer db.Close()
 
-	userDao := daos.NewUserDAOImpl(db)
+	userDao := repositories.NewUserDAOImpl(db)
 
-	userRepo := repositories.NewUserRepository(*userDao)
+	userRepo := services.NewUserRepository(*userDao)
 
 	userController := controllers.NewUserController(*userRepo)
 
