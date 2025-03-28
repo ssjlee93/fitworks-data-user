@@ -14,22 +14,22 @@ import (
 var validPath = regexp.MustCompile("^/(user|users)/([0-9]+)?$")
 
 type UserController struct {
-	r services.Service[models.User]
+	s services.Service[models.User]
 }
 
-func NewUserController(repo services.UserRepository) *UserController {
-	return &UserController{r: &repo}
+func NewUserController(svc services.UserService) *UserController {
+	return &UserController{s: &svc}
 }
 
 func (userController *UserController) ReadAllHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("| UserController.ReadAllHandler")
-	res, _ := userController.r.ReadAll()
+	res, _ := userController.s.ReadAll()
 	marshalResponse(res, w)
 }
 
 func (userController *UserController) readOneHandler(w http.ResponseWriter, r *http.Request, id int64) {
 	log.Println("| UserController.readOneHandler")
-	res, _ := userController.r.ReadOne(id)
+	res, _ := userController.s.ReadOne(id)
 	marshalResponse(res, w)
 }
 
@@ -41,7 +41,7 @@ func (userController *UserController) createHandler(w http.ResponseWriter, r *ht
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
-	err = userController.r.Create(*user)
+	err = userController.s.Create(*user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -59,7 +59,7 @@ func (userController *UserController) updateHandler(w http.ResponseWriter, r *ht
 		w.Write([]byte(err.Error()))
 	}
 
-	err = userController.r.Update(*user)
+	err = userController.s.Update(*user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -69,7 +69,7 @@ func (userController *UserController) updateHandler(w http.ResponseWriter, r *ht
 
 func (userController *UserController) deleteHandler(w http.ResponseWriter, r *http.Request, id int64) {
 	log.Println("| UserController.deleteHandler")
-	err := userController.r.Delete(id)
+	err := userController.s.Delete(id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -137,31 +137,3 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, int64)) http.Handle
 		fn(w, r, int64(id))
 	}
 }
-
-// 36  func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
-// 37  	p, err := loadPage(title)
-// 38  	if err != nil {
-// 39  		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
-// 40  		return
-// 41  	}
-// 42  	renderTemplate(w, "view", p)
-// 43  }
-// 44
-// 45  func editHandler(w http.ResponseWriter, r *http.Request, title string) {
-// 46  	p, err := loadPage(title)
-// 47  	if err != nil {
-// 48  		p = &Page{Title: title}
-// 49  	}
-// 50  	renderTemplate(w, "edit", p)
-// 51  }
-// 52
-// 53  func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
-// 54  	body := r.FormValue("body")
-// 55  	p := &Page{Title: title, Body: []byte(body)}
-// 56  	err := p.save()
-// 57  	if err != nil {
-// 58  		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 59  		return
-// 60  	}
-// 61  	http.Redirect(w, r, "/view/"+title, http.StatusFound)
-// 62  }

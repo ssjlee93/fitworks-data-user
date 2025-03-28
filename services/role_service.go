@@ -6,34 +6,34 @@ import (
 )
 
 type RoleService struct {
-	dao repositories.RoleDAOImpl
+	r repositories.RoleRepository
 }
 
-func NewRoleService(dao repositories.RoleDAOImpl) *RoleService {
-	return &RoleService{dao: dao}
+func NewRoleService(r repositories.RoleRepository) *RoleService {
+	return &RoleService{r: r}
 }
 
-func (roleRepo *RoleService) ReadAll() ([]models.Role, error) {
-	res, _ := roleRepo.dao.ReadAll()
+func (roleService *RoleService) ReadAll() ([]models.Role, error) {
+	res, _ := roleService.r.ReadAll()
 	return res, nil
 }
 
-func (roleRepo *RoleService) ReadOne(id int64) (*models.Role, error) {
-	res, _ := roleRepo.dao.ReadOne(id)
+func (roleService *RoleService) ReadOne(id int64) (*models.Role, error) {
+	res, _ := roleService.r.ReadOne(id)
 	return res, nil
 }
 
-func (roleRepo *RoleService) Create(role models.Role) (*models.Role, error) {
-	res, _ := roleRepo.dao.Create(role)
+func (roleService *RoleService) Create(role models.Role) (*models.Role, error) {
+	res, _ := roleService.r.Create(role)
 	return res, nil
 }
 
-func (roleRepo *RoleService) Update(role models.Role) (*models.Role, error) {
-	res, _ := roleRepo.dao.Update(role)
+func (roleService *RoleService) Update(role models.Role) (*models.Role, error) {
+	res, _ := roleService.r.Update(role)
 	return res, nil
 }
 
-func (roleRepo *RoleService) Delete(id int64) (*models.Role, error) {
-	res, _ := roleRepo.dao.Delete(id)
+func (roleService *RoleService) Delete(id int64) (*models.Role, error) {
+	res, _ := roleService.r.Delete(id)
 	return res, nil
 }

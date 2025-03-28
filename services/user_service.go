@@ -10,7 +10,7 @@ type UserService struct {
 	r repositories.Repository[models.User]
 }
 
-func NewUserService(r repositories.UserDAOImpl) *UserService {
+func NewUserService(r repositories.UserRepository) *UserService {
 	return &UserService{r: &r}
 }
 

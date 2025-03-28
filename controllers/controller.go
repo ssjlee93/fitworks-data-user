@@ -1,9 +1,8 @@
 package controllers
 
+import "net/http"
+
 type Controller interface {
-	ReadAllHandler()
-	ReadOne(id int64)
-	Create()
-	Update()
-	Delete(id int64)
+	ReadAllHandler(w http.ResponseWriter, r *http.Request)
+	Handler(w http.ResponseWriter, r *http.Request)
 }
