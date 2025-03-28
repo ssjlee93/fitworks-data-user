@@ -14,7 +14,7 @@ import (
 var validPath = regexp.MustCompile("^/(user|users)/([0-9]+)?$")
 
 type UserController struct {
-	r services.Repository[models.User]
+	r services.Service[models.User]
 }
 
 func NewUserController(repo services.UserRepository) *UserController {

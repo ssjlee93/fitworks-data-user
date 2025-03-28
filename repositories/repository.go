@@ -2,7 +2,7 @@ package repositories
 
 import "github.com/ssjlee93/fitworks-data-user/models"
 
-type Dao[T models.Role | models.User] interface {
+type Repository[T models.Role | models.User] interface {
 	// Create queries DB to create a row
 	// return the created obj
 	Create(t T) error

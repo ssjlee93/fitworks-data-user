@@ -16,18 +16,18 @@ const (
 	deleteRole   = "DELETE FROM roles WHERE role_id=$1 RETURNING *"
 )
 
-type RoleDAOImpl struct {
+type RoleRepository struct {
 	d *sql.DB
 }
 
-func NewRoleDAOImpl(db *sql.DB) *RoleDAOImpl {
-	return &RoleDAOImpl{d: db}
+func NewRoleRepository(db *sql.DB) *RoleRepository {
+	return &RoleRepository{d: db}
 }
 
-func (roleDao *RoleDAOImpl) ReadAll() ([]models.Role, error) {
+func (roleRepository *RoleRepository) ReadAll() ([]models.Role, error) {
 	result := make([]models.Role, 0)
 	// query
-	rows, err := roleDao.d.Query(readAllRoles)
+	rows, err := roleRepository.d.Query(readAllRoles)
 	if err != nil {
 		return nil, fmt.Errorf("roles : %v", err)
 	}
@@ -52,9 +52,9 @@ func (roleDao *RoleDAOImpl) ReadAll() ([]models.Role, error) {
 	return result, nil
 }
 
-func (roleDao *RoleDAOImpl) ReadOne(id int64) (*models.Role, error) {
+func (roleRepository *RoleRepository) ReadOne(id int64) (*models.Role, error) {
 	// query
-	row := roleDao.d.QueryRow(readOneRole, id)
+	row := roleRepository.d.QueryRow(readOneRole, id)
 	// scan result
 	result, err := scanRole(row)
 	if err != nil {
@@ -63,9 +63,9 @@ func (roleDao *RoleDAOImpl) ReadOne(id int64) (*models.Role, error) {
 	return result, nil
 }
 
-func (roleDao *RoleDAOImpl) Create(role models.Role) (*models.Role, error) {
+func (roleRepository *RoleRepository) Create(role models.Role) (*models.Role, error) {
 	// query
-	row := roleDao.d.QueryRow(createRole, role.Role)
+	row := roleRepository.d.QueryRow(createRole, role.Role)
 	// scan result
 	result, err := scanRole(row)
 	if err != nil {
@@ -74,9 +74,9 @@ func (roleDao *RoleDAOImpl) Create(role models.Role) (*models.Role, error) {
 	return result, nil
 }
 
-func (roleDao *RoleDAOImpl) Update(role models.Role) (*models.Role, error) {
+func (roleRepository *RoleRepository) Update(role models.Role) (*models.Role, error) {
 	// query
-	row := roleDao.d.QueryRow(updateRole, role.Role, role.RoleID)
+	row := roleRepository.d.QueryRow(updateRole, role.Role, role.RoleID)
 	// scan result
 	result, err := scanRole(row)
 	if err != nil {
@@ -85,9 +85,9 @@ func (roleDao *RoleDAOImpl) Update(role models.Role) (*models.Role, error) {
 	return result, nil
 }
 
-func (roleDao *RoleDAOImpl) Delete(id int64) (*models.Role, error) {
+func (roleRepository *RoleRepository) Delete(id int64) (*models.Role, error) {
 	// query
-	row := roleDao.d.QueryRow(deleteRole, id)
+	row := roleRepository.d.QueryRow(deleteRole, id)
 	// scan result
 	result, err := scanRole(row)
 	if err != nil {

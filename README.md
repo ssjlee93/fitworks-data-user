@@ -10,10 +10,7 @@ Repository pattern retrieves curtailed to the business logic.
 
 This data service only retrieves data.  
 logic should be handled on a different microservice.  
-hence, I did nothing but toss the results of the DAOs.  
-
-## Missing service layer
-no business logic = no service layer.  
+hence, I did nothing but toss the results of the DAOs.
 
 ## dtos vs entities
 entities makes more sense.  

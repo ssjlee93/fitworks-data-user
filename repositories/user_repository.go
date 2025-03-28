@@ -17,19 +17,19 @@ const (
 	deleteUser   = "DELETE FROM users WHERE user_id=$1"
 )
 
-type UserDAOImpl struct {
+type UserRepository struct {
 	d *sql.DB
 }
 
-func NewUserDAOImpl(db *sql.DB) *UserDAOImpl {
-	return &UserDAOImpl{d: db}
+func NewUserRepository(db *sql.DB) *UserRepository {
+	return &UserRepository{d: db}
 }
 
-func (userDao *UserDAOImpl) ReadAll() ([]models.User, error) {
-	log.Println("| - - - UserDAO.ReadAll")
+func (userRepository *UserRepository) ReadAll() ([]models.User, error) {
+	log.Println("| - - UserRepository.ReadAll")
 	result := make([]models.User, 0)
 	// query
-	rows, err := userDao.d.Query(readAllUsers)
+	rows, err := userRepository.d.Query(readAllUsers)
 	if err != nil {
 		return nil, fmt.Errorf("users : %v", err)
 	}
@@ -64,10 +64,10 @@ func (userDao *UserDAOImpl) ReadAll() ([]models.User, error) {
 	return result, nil
 }
 
-func (userDao *UserDAOImpl) ReadOne(id int64) (*models.User, error) {
-	log.Println("| - - - UserDAO.ReadOne")
+func (userRepository *UserRepository) ReadOne(id int64) (*models.User, error) {
+	log.Println("| - - UserRepository.ReadOne")
 	// query
-	row := userDao.d.QueryRow(readOneUser, id)
+	row := userRepository.d.QueryRow(readOneUser, id)
 	result, err := scanUser(row)
 	if err != nil {
 		return nil, fmt.Errorf("ReadOne: %v", err)
@@ -75,10 +75,10 @@ func (userDao *UserDAOImpl) ReadOne(id int64) (*models.User, error) {
 	return result, nil
 }
 
-func (userDao *UserDAOImpl) Create(user models.User) error {
-	log.Println("| - - - UserDAO.Create")
+func (userRepository *UserRepository) Create(user models.User) error {
+	log.Println("| - - UserRepository.Create")
 
-	exec, err := userDao.d.Exec(createUser,
+	exec, err := userRepository.d.Exec(createUser,
 		user.FirstName,
 		user.LastName,
 		user.Google,
@@ -87,16 +87,16 @@ func (userDao *UserDAOImpl) Create(user models.User) error {
 		user.TrainerID)
 
 	if err != nil {
-		log.Printf("Error UserDao create : %v", err)
+		log.Printf("Error UserRepository create : %v", err)
 		return err
 	}
 	log.Println(exec.RowsAffected())
 	return nil
 }
 
-func (userDao *UserDAOImpl) Update(user models.User) error {
-	log.Println("| - - - UserDAO.Update")
-	exec, err := userDao.d.Exec(updateUser,
+func (userRepository *UserRepository) Update(user models.User) error {
+	log.Println("| - - UserRepository.Update")
+	exec, err := userRepository.d.Exec(updateUser,
 		user.UserID,
 		user.FirstName,
 		user.LastName,
@@ -106,18 +106,18 @@ func (userDao *UserDAOImpl) Update(user models.User) error {
 		user.TrainerID)
 
 	if err != nil {
-		log.Printf("Error UserDao update : %v", err)
+		log.Printf("Error UserRepository update : %v", err)
 		return err
 	}
 	log.Println(exec.RowsAffected())
 	return nil
 }
 
-func (userDao *UserDAOImpl) Delete(id int64) error {
-	log.Println("| - - - UserDAO Delete", id)
-	exec, err := userDao.d.Exec(deleteUser, id)
+func (userRepository *UserRepository) Delete(id int64) error {
+	log.Println("| - - UserRepository Delete", id)
+	exec, err := userRepository.d.Exec(deleteUser, id)
 	if err != nil {
-		log.Printf("UserDAO.Delete error : %v", err)
+		log.Printf("UserRepository.Delete error : %v", err)
 		return err
 	}
 	log.Println(exec.RowsAffected())

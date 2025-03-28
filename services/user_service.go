@@ -6,47 +6,47 @@ import (
 	"log"
 )
 
-type UserRepository struct {
-	dao repositories.Dao[models.User]
+type UserService struct {
+	r repositories.Repository[models.User]
 }
 
-func NewUserRepository(dao repositories.UserDAOImpl) *UserRepository {
-	return &UserRepository{dao: &dao}
+func NewUserService(r repositories.UserDAOImpl) *UserService {
+	return &UserService{r: &r}
 }
 
-func (userRepo *UserRepository) ReadAll() ([]models.User, error) {
-	log.Println("| - - UserRepository.ReadAll")
-	res, _ := userRepo.dao.ReadAll()
+func (userService *UserService) ReadAll() ([]models.User, error) {
+	log.Println("| - UserService.ReadAll")
+	res, _ := userService.r.ReadAll()
 	return res, nil
 }
 
-func (userRepo *UserRepository) ReadOne(id int64) (*models.User, error) {
-	log.Println("| - - UserRepository.ReadOne")
-	res, _ := userRepo.dao.ReadOne(id)
+func (userService *UserService) ReadOne(id int64) (*models.User, error) {
+	log.Println("| - UserService.ReadOne")
+	res, _ := userService.r.ReadOne(id)
 	return res, nil
 }
 
-func (userRepo *UserRepository) Create(user models.User) error {
-	log.Println("| - - UserRepository.Create")
-	err := userRepo.dao.Create(user)
+func (userService *UserService) Create(user models.User) error {
+	log.Println("| - UserService.Create")
+	err := userService.r.Create(user)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (userRepo *UserRepository) Update(user models.User) error {
-	log.Println("| - - UserRepository.Update")
-	err := userRepo.dao.Update(user)
+func (userService *UserService) Update(user models.User) error {
+	log.Println("| - UserService.Update")
+	err := userService.r.Update(user)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (userRepo *UserRepository) Delete(id int64) error {
-	log.Println("| - - UserRepository.Delete")
-	err := userRepo.dao.Delete(id)
+func (userService *UserService) Delete(id int64) error {
+	log.Println("| - UserService.Delete")
+	err := userService.r.Delete(id)
 	if err != nil {
 		return err
 	}

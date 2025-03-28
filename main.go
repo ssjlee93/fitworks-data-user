@@ -16,11 +16,11 @@ func main() {
 	db := configs.GetConnection()
 	defer db.Close()
 
-	userDao := repositories.NewUserDAOImpl(db)
+	userRepo := repositories.NewUserRepository(db)
 
-	userRepo := services.NewUserRepository(*userDao)
+	userService := services.NewUserService(*userRepo)
 
-	userController := controllers.NewUserController(*userRepo)
+	userController := controllers.NewUserController(*userService)
 
 	http.HandleFunc("/users", userController.ReadAllHandler)
 	http.HandleFunc("/user/", userController.Handler)
